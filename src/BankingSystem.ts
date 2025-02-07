@@ -7,49 +7,82 @@
 // 6. Implement a function `closeAccount` that removes an account from the array and returns a confirmation string.
 
 enum TransactionType {
-  Deposit,
-  Withdraw
+  Deposit = "TransactionType.Deposit",
+  Withdraw = "TransactionType.Withdraw"
 }
 
 type Transaction = {
-  accountNo: number;
-  amount: number;
-  type: TransactionType;
+  accountNo: number,
+  amount: number,
+  type: TransactionType
 };
 
 type BankAccount = {
-  accountNo: number;
-  firstname: string;
-  lastname: string;
-  balance: number;
-  isActive: boolean;
+  accountNo: number,
+  firstName: string,
+  lastName: string,
+  balance: number,
+  isActive: boolean,
   transactions: Transaction[]
 }
 
 const accounts: BankAccount[] = [];
 
-function createAccount(accountNo, firstname, lastname, initialDeposit, isActive = true) {
-
+function createAccount(accountNo: number, firstName: string, lastName: string, initialDeposit: number, isActive: boolean = true): BankAccount {
+  const newAccount: BankAccount = {
+    accountNo,
+    firstName,
+    lastName,
+    balance: initialDeposit,
+    isActive,
+    transactions: []
+  };
+  accounts.push(newAccount);
+  return newAccount;
 }
 
-function processTransaction(accountNo, amount, transactionType) {
+function processTransaction(accountNo: number, amount: number, transactionType: TransactionType): string {
+  const account = accounts.find(account => account.accountNo === accountNo);
+  if (!account) return "Account not found";
+  if (!account) return "Account is not active";
 
+  if (transactionType === TransactionType.Withdraw && account.balance < amount) {
+    return "Insufficient funds for withdrawal";
+  }
+
+  if (transactionType === TransactionType.Withdraw) {
+    account.balance -= amount;
+  } else {
+    account.balance += amount;
+  }
+
+  const transaction: Transaction = { accountNo, amount, type: transactionType };
+  account.transactions.push(transaction);
+
+  return `${amount} ${transactionType === TransactionType.Deposit ? 'deposited into' : 'withdrawn from'} account number ${accountNo}`;
 }
 
-function getBalance(accountNo) {
-
+function getBalance(accountNo: number): number | string {
+  const account = accounts.find(account => account.accountNo === accountNo);
+  return account ? account.balance : "Account not found";
 }
 
-function getTransactionHistory(accountNo) {
-
+function getTransactionHistory(accountNo: number): Transaction[] | string {
+  const account = accounts.find(account => account.accountNo === accountNo);
+  return account ? account.transactions : "Account not found";
 }
 
-function checkActiveStatus(accountNo) {
-
+function checkActiveStatus(accountNo: number): boolean | string {
+  const account = accounts.find(account => account.accountNo === accountNo);
+  return account ? account.isActive : "Account not found";
 }
 
-function closeAccount(accountNo) {
+function closeAccount(accountNo: number): string {
+  const index = accounts.findIndex(account => account.accountNo === accountNo);
+  if (index === -1) return "Account not found";
 
+  accounts.splice(index, 1);
+  return `Account number ${accountNo} closed`;
 }
 
 // Test cases (students should add more)
